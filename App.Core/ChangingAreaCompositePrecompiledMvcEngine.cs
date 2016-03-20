@@ -6,7 +6,6 @@ using RazorGenerator.Mvc;
 
 namespace App
 {
-
     public class ChangingAreaCompositePrecompiledMvcEngine : CompositePrecompiledMvcEngine
     {
         private class AreaChanger : IDisposable
@@ -20,13 +19,18 @@ namespace App
                 var areaFolder = routeData.GetAreaFolder();
                 originalArea = routeData.GetAreaName();
 
-                routeData.DataTokens[AppAreaRegistration.RouteConstants.area] = areaFolder ?? originalArea;
-
+                if (originalArea != null)
+                {
+                    routeData.DataTokens[RouteConstants.area] = areaFolder ?? originalArea;
+                }
             }
 
             public void Dispose()
             {
-                routeData.DataTokens[AppAreaRegistration.RouteConstants.area] = originalArea;
+                if (originalArea != null)
+                {
+                    routeData.DataTokens[RouteConstants.area] = originalArea;
+                }
             }
         }
 

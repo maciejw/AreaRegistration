@@ -5,11 +5,14 @@
 
 <h2>CustomArea1 Home Index</h2>
 
-@Url.Action()
+@Url.Action()<br />
+@Url.Action("Index", new { area = ""})<br />
+
+@Url.AreaScript("main.js")<br />
+@Url.AreaContent("Site.css")<br />
+
+@Url.DefaultScript("main.js")<br />
+@Url.DefaultContent("Site.css")<br />
 
 
-<script src="@Url.Content("Scripts/main.js")" type="text/javascript" >
-
-
-</script>
 

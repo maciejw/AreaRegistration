@@ -13,61 +13,88 @@ using System.Diagnostics.Contracts;
 
 namespace App
 {
+    using static ResourceRouteHandler;
+
+    public static class RouteDefaults
+    {
+        public const string Home = nameof(Home);
+        public const string Index = nameof(Index);
+    }
+
+    public static class RouteConstants
+    {
+        public const string area = nameof(area);
+        public const string controller = nameof(controller);
+        public const string action = nameof(action);
+        public const string id = nameof(id);
+    }
+
+
     public abstract class AppAreaRegistration : AreaRegistration
     {
-        private const string Content = nameof(Content);
-        private const string Scripts = nameof(Scripts);
+        public const string area_default = nameof(area_default);
 
-        public static class RouteConstants
+        public static class DataTokens
         {
             public const string areaFolder = nameof(areaFolder);
-            public const string area = nameof(area);
-            public const string controller = nameof(controller);
-            public const string action = nameof(action);
-            public const string id = nameof(id);
+            public const string areaDefaultRouteName = nameof(areaDefaultRouteName);
         }
-
         public virtual string AreaFolder
         {
             get { return AreaName; }
         }
-        public abstract string BaseAreaNamespace
+        public abstract string AreaBaseNamespace
         {
             get;
         }
         public virtual string DefaultUrl => $"{{{RouteConstants.controller}}}/{{{RouteConstants.action}}}/{{{RouteConstants.id}}}";
 
-        public virtual object DefaultUrlValues => new { controller = "Home", action = "Index", id = UrlParameter.Optional };
+        public virtual object DefaultUrlValues => new { controller = RouteDefaults.Home, action = RouteDefaults.Index, id = UrlParameter.Optional };
 
         public override void RegisterArea(AreaRegistrationContext context)
         {
-            RegisterResourceRoute(context, Scripts);
-            RegisterResourceRoute(context, Content);
-
-            RegisterDefaultRoute(context);
+            RegisterDefaultRoutes(context);
         }
 
-        private Route RegisterDefaultRoute(AreaRegistrationContext context)
+        protected Route RegisterDefaultRoutes(AreaRegistrationContext context)
         {
-            Route route = context.MapRoute(
-                $"{AreaName}_default",
-                $"{AreaName}/{DefaultUrl}",
-                DefaultUrlValues,
-                namespaces: new[] { $"{BaseAreaNamespace}.{AreaFolder}.Controllers" }
-            );
-            route.DataTokens.Add(RouteConstants.areaFolder, AreaFolder);
-            return route;
+            Contract.Requires(context != null);
+
+            var scriptResourceRouteName = GetAreaResourceRouteName(AreaName, DefaultFolders.Scripts);
+            var contentResourceRouteName = GetAreaResourceRouteName(AreaName, DefaultFolders.Content);
+
+            var areaDefaultRouteName = GetAreaDefaultRouteName(AreaName);
+            var url = $"{AreaName}/{DefaultUrl}";
+            var defaults = DefaultUrlValues;
+            var constraints = CreateControllerExcludeConstraintForDefaultFolders();
+
+            Route areaDefaultRoute = context.MapRoute(areaDefaultRouteName, url, defaults, constraints);
+
+            areaDefaultRoute.DataTokens[DataTokens.areaFolder] = AreaFolder;
+            areaDefaultRoute.DataTokens[DataTokens.areaDefaultRouteName] = areaDefaultRouteName;
+
+            areaDefaultRoute.DataTokens[ResourceRouteHandler.DataTokens.areaScriptResourceRouteName] = scriptResourceRouteName;
+            areaDefaultRoute.DataTokens[ResourceRouteHandler.DataTokens.areaContentResourceRouteName] = contentResourceRouteName;
+
+            RegisterAreaResourceRoute(context, scriptResourceRouteName, DefaultFolders.Scripts);
+            RegisterAreaResourceRoute(context, contentResourceRouteName, DefaultFolders.Content);
+
+            return areaDefaultRoute;
         }
 
-        protected Route RegisterResourceRoute(AreaRegistrationContext context, string resourcePrefix)
+        public static string GetAreaDefaultRouteName(string areaName)
         {
-            Contract.Requires(!string.IsNullOrEmpty(AreaName), "AreaName is null or empty.");
-            Contract.Requires(!string.IsNullOrEmpty(BaseAreaNamespace), "AreaName is null or empty.");
-            Contract.Requires(!string.IsNullOrEmpty(AreaFolder), "AreaName is null or empty.");
-            Contract.Requires(context != null, "context is null.");
-            Contract.Requires(!string.IsNullOrEmpty(resourcePrefix), "resourcePrefix is null or empty.");
+            return $"{areaName}_{area_default}";
+        }
 
-            return ResourceRouteHandler.RegisterResourceRoute(context.MapRoute, AreaName, resourcePrefix, GetType().Assembly, $"{BaseAreaNamespace}.{AreaFolder}.{resourcePrefix}");
+        protected Route RegisterAreaResourceRoute(AreaRegistrationContext context, string resourceRouteName, string resourceFolder)
+        {
+            return RegisterResourceRoute(context.MapRoute, resourceRouteName, AreaName, resourceFolder, GetType().Assembly, GetAreaDefaultNamespace());
+        }
+
+        private string GetAreaDefaultNamespace()
+        {
+            return $"{AreaBaseNamespace}.{AreaFolder}";
         }
     }
 

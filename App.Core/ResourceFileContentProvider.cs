@@ -5,43 +5,26 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Diagnostics.Contracts;
+using System.Diagnostics.CodeAnalysis;
 
 namespace App
 {
-
     public class ResourceFileContentProvider : IFileContentProvider
     {
         private readonly Assembly assembly;
         private readonly string basePath;
-        private readonly Regex pathReplacer;
+        private readonly ResourcePathReplacer pathReplacer;
 
         public ResourceFileContentProvider(Assembly assembly, string baseNamespace)
         {
-            Contract.Requires(!string.IsNullOrEmpty(baseNamespace), "baseNamespace is null or empty.");
-            Contract.Requires(assembly != null, "assembly is null.");
-
             this.basePath = baseNamespace;
             this.assembly = assembly;
-            this.pathReplacer = new Regex(@"[\\/]", RegexOptions.Compiled);
-        }
-
-        private string PathReplacerEvaluator(Match match)
-        {
-            switch (match.Value)
-            {
-                case @"\": return ".";
-                case @"/": return ".";
-                default:
-                    throw new NotSupportedException($"Unexpected match {match.Value}");
-            }
+            this.pathReplacer = new ResourcePathReplacer();
         }
 
         private string GetResourcePath(string relativePath)
         {
-
-            var fullPath = Path.Combine(basePath, relativePath);
-
-            return pathReplacer.Replace(fullPath, PathReplacerEvaluator);
+            return pathReplacer.ToResourcePath(Path.Combine(basePath, relativePath));
         }
 
         public Stream GetContent(string relativePath)

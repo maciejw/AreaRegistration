@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Diagnostics.Contracts;
-using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace App
 {
+    [ExcludeFromCodeCoverage]
     [ContractClassFor(typeof(IFileContentProvider))]
     public abstract class IFileContentProviderContract : IFileContentProvider
     {

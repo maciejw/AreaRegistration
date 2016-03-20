@@ -7,11 +7,20 @@ using System.Linq;
 using System.Web.Routing;
 using System.Diagnostics.Contracts;
 using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
 
 [assembly: WebActivatorEx.PostApplicationStartMethod(typeof(App.RazorGeneratorMvcStart), "Start")]
 
 namespace App
 {
+    [ExcludeFromCodeCoverage]
+    public static class HttpContextLocator
+    {
+        public static Func<HttpContextBase> HttpContextFactory { get; set; } = () => new HttpContextWrapper(HttpContext.Current);
+
+        public static HttpContextBase Current => HttpContextFactory();
+    }
+
     public static class RazorGeneratorMvcStart
     {
         public static void Start()
@@ -37,7 +46,7 @@ namespace App
             Func<Assembly, PrecompiledViewAssembly> precompiledViewAssembly = a =>
                 new PrecompiledViewAssembly(a)
                 {
-                    UsePhysicalViewsIfNewer = HttpContext.Current.Request.IsLocal
+                    UsePhysicalViewsIfNewer = HttpContextLocator.Current.Request.IsLocal
                 };
 
             var modules = AppDomain.CurrentDomain

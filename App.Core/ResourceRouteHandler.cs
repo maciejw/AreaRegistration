@@ -6,11 +6,35 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Diagnostics.Contracts;
+using System.IO;
 
 namespace App
 {
     public class ResourceRouteHandler : MvcRouteHandler
     {
+        public static class DefaultFolders
+        {
+            public const string Content = nameof(Content);
+            public const string Scripts = nameof(Scripts);
+        }
+        public static class DataTokens
+        {
+            public const string areaScriptResourceRouteName = nameof(areaScriptResourceRouteName);
+            public const string defaultScriptResourceRouteName = nameof(defaultScriptResourceRouteName);
+
+            public const string areaContentResourceRouteName = nameof(areaContentResourceRouteName);
+            public const string defaultContentResourceRouteName = nameof(defaultContentResourceRouteName);
+        }
+        public static class RouteConstants
+        {
+            public const string path = nameof(path);
+        }
+
+        public static object CreateControllerExcludeConstraintForDefaultFolders()
+        {
+            return new { controller = new ExcludeRouteConstraint(DefaultFolders.Scripts, DefaultFolders.Content) };
+        }
+
         private readonly Assembly resourceAssembly;
         private readonly string baseNamespace;
 
@@ -25,48 +49,46 @@ namespace App
             return new ResourceHandler(requestContext, new ResourceFileContentProvider(resourceAssembly, baseNamespace));
         }
 
-        public static class RouteConstants
+        public static string GetDefaultResourceRouteName(string resourceFolder)
         {
-            public const string path = nameof(path);
+            return $"{resourceFolder}_resource";
         }
 
-        public static Route RegisterResourceRoute(Func<string, string, Route> routeFactory, string resourcePrefix, Assembly resourceAssembly, string baseNamespace)
+        public static string GetAreaResourceRouteName(string areaName, string resourceFolder)
         {
-            Contract.Requires(routeFactory != null, "routeFactory is null.");
-            Contract.Requires(!string.IsNullOrEmpty(resourcePrefix), "resourcePrefix is null or empty.");
-            Contract.Requires(resourceAssembly != null, "resourceAssembly is null.");
-            Contract.Requires(!string.IsNullOrEmpty(baseNamespace), "baseNamespace is null or empty.");
-
-            Route route = RegisterRoute(routeFactory, resourceAssembly, baseNamespace,
-                 $"Default_{resourcePrefix}_resource",
-                 $"{resourcePrefix}/{{*{RouteConstants.path}}}");
-
-            return route;
+            return $"{areaName}_{resourceFolder}_resource";
         }
-        public static Route RegisterResourceRoute(Func<string, string, Route> routeFactory, string areaName, string resourcePrefix, Assembly resourceAssembly, string baseNamespace)
+
+        public static Route RegisterResourceRoute(RegisterResourceRouteFactory routeFactory, string resourceRouteName, string resourceFolder, Assembly resourceAssembly, string applicationDefaultNamespace)
         {
-            Contract.Requires(routeFactory != null, "routeFactory is null.");
-            Contract.Requires(!string.IsNullOrEmpty(areaName), "areaName is null or empty.");
-            Contract.Requires(!string.IsNullOrEmpty(resourcePrefix), "resourcePrefix is null or empty.");
-            Contract.Requires(resourceAssembly != null, "resourceAssembly is null.");
-            Contract.Requires(!string.IsNullOrEmpty(baseNamespace), "baseNamespace is null or empty.");
+            return RegisterResourceRoute(routeFactory, resourceRouteName, "", resourceFolder, resourceAssembly, applicationDefaultNamespace);
+        }
 
+        public static Route RegisterResourceRoute(RegisterResourceRouteFactory routeFactory, string resourceRouteName, string resourceBaseUrl, string resourceFolder, Assembly resourceAssembly, string applicationDefaultNamespace)
+        {
+            Contract.Requires(routeFactory != null);
 
+            var routeHandler = new ResourceRouteHandler(resourceAssembly, $"{applicationDefaultNamespace}.{resourceFolder}");
+            var url = GetUrl(resourceBaseUrl, resourceFolder);
 
-            Route route = RegisterRoute(routeFactory, resourceAssembly, baseNamespace,
-                $"{areaName}_{resourcePrefix}_resource",
-                $"{areaName}/{resourcePrefix}/{{*{RouteConstants.path}}}");
+            Route route = RegisterRoute(routeFactory, routeHandler, resourceRouteName, url);
 
             return route;
         }
 
-        private static Route RegisterRoute(Func<string, string, Route> routeFactory, Assembly resourceAssembly, string baseNamespace, string name, string url)
+        private static string GetUrl(params string[] segments)
         {
-            Route route = routeFactory(
-                  name,
-                  url
-                );
-            route.RouteHandler = new ResourceRouteHandler(resourceAssembly, baseNamespace);
+            Func<string, bool> nonEmptyString = s => !string.IsNullOrEmpty(s);
+
+            return string.Join("/", segments.Union(new[] { $"{{*{RouteConstants.path}}}" }).Where(nonEmptyString));
+        }
+
+        private static Route RegisterRoute(RegisterResourceRouteFactory routeFactory, IRouteHandler routeHandler, string resourceRouteName, string url)
+        {
+            Route route = routeFactory?.Invoke(resourceRouteName, url);
+            route.RouteHandler = routeHandler;
+            route.RouteExistingFiles = true;
+
             return route;
         }
     }
