@@ -7,16 +7,16 @@ namespace App
 {
     public static class UrlHelperExtensions
     {
-        private static string ResourceRouteUrl(UrlHelper @this, string routeKey, string path)
+        private static string ResourceRouteUrl(UrlHelper @this, string routeKey, string file)
         {
             string routeName = @this.RequestContext.RouteData.DataTokens[routeKey] as string;
 
-            if (string.IsNullOrEmpty(routeName))
+            if (routeName.IsNullOrEmpty())
             {
                 throw new MissingResourceRouteException(routeKey);
             }
 
-            return @this.RouteUrl(routeName, new { path });
+            return @this.RouteUrl(routeName, new { file });
         }
 
         public static string AreaScript(this UrlHelper @this, string scriptPath)

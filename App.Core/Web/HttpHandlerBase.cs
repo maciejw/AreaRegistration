@@ -5,11 +5,12 @@ using System.Linq;
 using System.Web;
 using System.Web.Routing;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace App
 {
     [ExcludeFromCodeCoverage]
-    public abstract class HttpHandlerBase : IHttpHandler
+    public abstract class HttpHandlerBase : HttpTaskAsyncHandler
     {
         protected readonly HttpContextBase context;
         protected readonly RouteData routeData;
@@ -22,13 +23,15 @@ namespace App
             this.context = requestContext.HttpContext;
         }
 
-        bool IHttpHandler.IsReusable { get { return false; } }
-
-        void IHttpHandler.ProcessRequest(HttpContext c)
+        public sealed override Task ProcessRequestAsync(HttpContext context)
         {
-            ProcessRequest();
+            return ProcessRequestAsync();
+        }
+        public sealed override void ProcessRequest(HttpContext context)
+        {
+            base.ProcessRequest(context);
         }
 
-        public abstract void ProcessRequest();
+        public abstract Task ProcessRequestAsync();
     }
 }

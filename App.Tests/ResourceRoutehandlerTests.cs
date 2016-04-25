@@ -26,7 +26,7 @@ namespace App.Tests
         [Fact]
         public void Should_return_expected_handler()
         {
-            var route = new Route("Scripts/{*path}", null);
+            var route = new Route("Scripts/{*file}", null);
             var testHttpContext = new TestHttpContext(new WebTestContext()
             {
                 AppRelativeCurrentExecutionFilePath = "~/Scripts/file.js"
@@ -35,8 +35,8 @@ namespace App.Tests
             var requestContext = new RequestContext(testHttpContext, routeData);
 
 
-            var routeHandler = new TestResourceRouteHandler();
-            var httpHandler = routeHandler.GetHttpHandler(requestContext);
+            var sut = new TestResourceRouteHandler();
+            var httpHandler = sut.GetHttpHandler(requestContext);
 
 
             Assert.NotNull(httpHandler);

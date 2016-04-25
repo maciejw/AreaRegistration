@@ -13,5 +13,14 @@ namespace App.Controllers
         {
             return View();
         }
+
+        public ActionResult IndexHome2()
+        {
+            return PartialView("../Home2/Index");
+        }
+        public ActionResult IndexSub()
+        {
+            return View("Sub/Index");
+        }
     }
 }

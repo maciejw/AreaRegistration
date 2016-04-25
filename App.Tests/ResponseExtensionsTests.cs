@@ -19,19 +19,19 @@ namespace App.Tests
         [InlineData("css", "text/css")]
         public void Should_set_content_type_based_on_extention(string extension, string contentType)
         {
-            var httpContext = new TestHttpContext(new WebTestContext());
+            var sut = new TestHttpContext(new WebTestContext()).Response;
 
-            httpContext.Response.SetContentTypeBasedOnExtension(extension);
+            sut.SetContentTypeBasedOnExtension(extension);
 
-            Assert.Equal(contentType, httpContext.Response.ContentType);
+            Assert.Equal(contentType, sut.ContentType);
         }
         [Fact]
         public void Should_throw_exception_from_unknown_extention()
         {
-            var httpContext = new TestHttpContext(new WebTestContext());
+            var sut = new TestHttpContext(new WebTestContext()).Response;
 
             var exception = Assert.Throws<NotSupportedException>(() =>
-                httpContext.Response.SetContentTypeBasedOnExtension("unknown"));
+                sut.SetContentTypeBasedOnExtension("unknown"));
 
             Assert.Contains("unknown", exception.Message);
 

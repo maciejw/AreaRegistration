@@ -69,6 +69,7 @@ namespace App.Tests
             sut = ViewEngines.Engines.First() as ChangingAreaCompositePrecompiledMvcEngine;
 
         }
+        //ncrunch: no coverage start
         [ExcludeFromCodeCoverage]
         public static IEnumerable<object[]> AreaTestData()
         {
@@ -76,6 +77,7 @@ namespace App.Tests
             yield return new object[] { "AreaName", null };
             yield return new object[] { "DifferentAreaNameWhenFolder", "AreaName" };
         }
+        //ncrunch: no coverage end
 
         [Theory]
         [MemberData("AreaTestData")]
@@ -83,7 +85,7 @@ namespace App.Tests
         {
             ControllerContext controllerContext = CreateControllerContext(area, areaFolder);
 
-            var viewResult = this.sut.FindView(controllerContext, "TestView", "", false);
+            var viewResult = sut.FindView(controllerContext, "TestView", "", false);
 
             Assert.NotNull(viewResult);
 
@@ -96,7 +98,7 @@ namespace App.Tests
         {
             ControllerContext controllerContext = CreateControllerContext(area, areaFolder);
 
-            var viewResult = this.sut.FindPartialView(controllerContext, "TestView", false);
+            var viewResult = sut.FindPartialView(controllerContext, "TestView", false);
 
             Assert.NotNull(viewResult);
 
@@ -108,7 +110,7 @@ namespace App.Tests
         {
             ControllerContext controllerContext = CreateControllerContext();
 
-            var viewResult = this.sut.FindView(controllerContext, "TestView", "", false);
+            var viewResult = sut.FindView(controllerContext, "TestView", "", false);
 
             this.sut.ReleaseView(controllerContext, viewResult.View);
         }

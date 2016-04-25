@@ -17,7 +17,6 @@ namespace App
 
         public Stream GetContent(string relativePath)
         {
-
             Contract.Requires(!string.IsNullOrEmpty(relativePath), "relativePath is null or empty.");
             Contract.Ensures(Contract.Result<Stream>() != null, "Return value is out of Range");
 

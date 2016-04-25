@@ -128,8 +128,10 @@
     <EmbeddedResource Include="Content\bootstrap.css.map" />
     <EmbeddedResource Include="Content\bootstrap-theme.min.css.map" />
     <EmbeddedResource Include="Content\bootstrap-theme.css.map" />
-    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home2\Index.cshtml" />
     <Content Include="Views\razorgenerator.directives" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\Sub\Index.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

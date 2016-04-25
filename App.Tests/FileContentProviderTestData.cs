@@ -9,6 +9,9 @@ namespace App.Tests
     [ExcludeFromCodeCoverage]
     public class FileContentProviderTestData
     {
+        public const int NumberOfIterations = 100;
+        public const int NumberOfIThreads = 8;
+
         private static IEnumerable<object[]> GetTestData()
         {
             yield return new object[] { @"TestFolder/file1.txt", "file1" };

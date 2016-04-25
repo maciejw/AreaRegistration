@@ -213,3 +213,4 @@ ModelManifest.xml
 
 *.ncrunchsolution
 *.ncrunchproject
+App.Tests/TestFolder/SpeedTest/

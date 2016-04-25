@@ -27,7 +27,7 @@ namespace App
         }
         public static class RouteConstants
         {
-            public const string path = nameof(path);
+            public const string file = nameof(file);
         }
 
         public static object CreateControllerExcludeConstraintForDefaultFolders()
@@ -78,9 +78,7 @@ namespace App
 
         private static string GetUrl(params string[] segments)
         {
-            Func<string, bool> nonEmptyString = s => !string.IsNullOrEmpty(s);
-
-            return string.Join("/", segments.Union(new[] { $"{{*{RouteConstants.path}}}" }).Where(nonEmptyString));
+            return string.Join("/", segments.Union(new[] { $"{{*{RouteConstants.file}}}" }).Where(StringExtensions.IsNotNullOrEmpty));
         }
 
         private static Route RegisterRoute(RegisterResourceRouteFactory routeFactory, IRouteHandler routeHandler, string resourceRouteName, string url)

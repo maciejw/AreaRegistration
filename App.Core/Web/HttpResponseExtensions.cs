@@ -21,8 +21,8 @@ namespace App
             public const string Css = "text/css";
             public const string Js = "text/javascript";
             public const string Png = "image/png";
-            public const string Jpeg = System.Net.Mime.MediaTypeNames.Image.Jpeg;
-            public const string Gif = System.Net.Mime.MediaTypeNames.Image.Gif;
+            public const string Jpeg = "image/jpeg";
+            public const string Gif = "image/gif";
         }
 
         public static void SetContentTypeBasedOnExtension(this HttpResponseBase @this, string extension)

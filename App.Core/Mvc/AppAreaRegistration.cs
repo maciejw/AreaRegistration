@@ -15,21 +15,6 @@ namespace App
 {
     using static ResourceRouteHandler;
 
-    public static class RouteDefaults
-    {
-        public const string Home = nameof(Home);
-        public const string Index = nameof(Index);
-    }
-
-    public static class RouteConstants
-    {
-        public const string area = nameof(area);
-        public const string controller = nameof(controller);
-        public const string action = nameof(action);
-        public const string id = nameof(id);
-    }
-
-
     public abstract class AppAreaRegistration : AreaRegistration
     {
         public const string area_default = nameof(area_default);

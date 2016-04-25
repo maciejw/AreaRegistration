@@ -5,7 +5,5 @@ using System.Web.Routing;
 
 namespace App
 {
-
     public delegate Route RegisterResourceRouteFactory(string resourceRouteName, string url);
-
 }

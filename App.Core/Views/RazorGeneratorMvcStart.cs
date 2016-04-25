@@ -25,6 +25,10 @@ namespace App
     {
         public static void Start()
         {
+            StartEnable();
+        }
+        public static void StartEnable()
+        {
             ChangingAreaCompositePrecompiledMvcEngine engine = CreateViewEngine();
 
             ViewEngines.Engines.Clear();
